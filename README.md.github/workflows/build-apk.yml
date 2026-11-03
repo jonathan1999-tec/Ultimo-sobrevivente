@@ -1,0 +1,40 @@
+name: Gerar APK Android
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ultimo_sobrevivente_android_projeto.zip'
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extrair projeto
+        run: |
+          unzip -q ultimo_sobrevivente_android_projeto.zip -d projeto
+
+      - name: Compilar APK
+        run: gradle -p projeto assembleDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ultimo-Sobrevivente-APK
+          path: projeto/app/build/outputs/apk/debug/app-debug.apk
